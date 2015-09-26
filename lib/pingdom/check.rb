@@ -28,6 +28,10 @@ module Pingdom
     def lasterrortime
       Time.at(super)
     end
+    
+    def delete 
+      @client.delete("checks/#{id}")
+    end
 
   end
 

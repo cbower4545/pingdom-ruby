@@ -12,13 +12,12 @@ module Pingdom
 
       @connection = Faraday::Connection.new(:url => "https://api/pingdom.com/api/2.0/", ssl: {verify: false}) do |builder|
         builder.url_prefix = "https://api.pingdom.com/api/2.0"
-
-        # builder.adapter :logger, @options[:logger]
+        builder.request  :url_encoded
 
         builder.adapter @options[:http_driver]
 
-        # builder.use Gzip # TODO: write GZip response handler, add Accept-Encoding: gzip header
         builder.response :json, content_type: /\bjson$/
+        builder.response :logger, @options[:logger] if @options[:logger]
         builder.use Tinder::FaradayResponse::WithIndifferentAccess
 
         builder.basic_auth @options[:username], @options[:password]
@@ -41,6 +40,14 @@ module Pingdom
       response = @connection.get(@connection.build_url(uri, prepare_params(params)), &block)
       update_limits!(response.headers['req-limit-short'], response.headers['req-limit-long'])
       response
+    end
+    
+    def post(uri, params = {})
+      @connection.post(@connection.build_url(uri), params)
+    end
+    
+    def delete(uri)
+      @connection.delete(@connection.build_url(uri))
     end
 
     def update_limits!(short, long)
@@ -68,6 +75,16 @@ module Pingdom
 
     def check(id)
       Check.parse(self, get("checks/#{id}")).first
+    end
+    
+    def create_check (params)
+       
+      if params.has_key?(:name) and params.has_key?(:host) and params.has_key?(:type)
+         Check.parse(self, post("checks", params)).first
+      else
+        raise ArgumentError.new("name, host and type are required parameters")
+      end
+      
     end
 
     # Check ID

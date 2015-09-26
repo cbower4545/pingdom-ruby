@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Pingdom::Client do
   let(:client){ Pingdom::Client.new(CREDENTIALS.merge(:logger => LOGGER)) }
-  
+    
   describe "#test!" do
     it "should test a single endpoint" do
       response = client.test!(:host => "pingdom.com", :type => "http")
@@ -19,6 +19,15 @@ describe Pingdom::Client do
       first = checks.first
       first.should be_a(Pingdom::Check)
       first.created.should be_a(Numeric)
+    end
+    
+    it "should be able to create a check and delete that check" do
+      new_check = client.create_check({name: "Gizoogle", type: "http", host: "google.com", encryption: "true"})
+      new_check.should be_a(Pingdom::Check)
+      new_check.id.should_not be_nil
+      
+      response = new_check.delete
+      response.body["message"].should == "Deletion of check was successful!"
     end
   end
   
