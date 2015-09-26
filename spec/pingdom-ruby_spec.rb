@@ -18,7 +18,7 @@ describe Pingdom::Client do
       
       first = checks.first
       first.should be_a(Pingdom::Check)
-      first.last_response_time.should be_a(Numeric)
+      first.created.should be_a(Numeric)
     end
   end
   
