@@ -32,6 +32,14 @@ module Pingdom
     def delete 
       @client.delete("checks/#{id}")
     end
+    
+    def pause
+      @client.put("checks/#{id}", {paused: "true"})
+    end
+    
+    def unpause
+      @client.put("checks/#{id}", {paused: "false"})
+    end
 
   end
 

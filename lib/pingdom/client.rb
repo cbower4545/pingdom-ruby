@@ -49,6 +49,10 @@ module Pingdom
     def delete(uri)
       @connection.delete(@connection.build_url(uri))
     end
+    
+    def put(uri, params = {})
+       @connection.put(@connection.build_url(uri), params)
+    end
 
     def update_limits!(short, long)
       @limit ||= {}
